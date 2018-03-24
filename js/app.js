@@ -7,24 +7,44 @@ var randomInteger = function(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-// Enemies our player must avoid
-var Enemy = function() {
-    this.sprite = 'images/enemy-bug.png';
-    this.speed = 0;
+// Create an Actor object to hold common data and methods for both
+// Enemies and Players
+var Actor = function(sprite) {
+    this.sprite = Resources.get(sprite);
     this.x = 0;
     this.y = 0;
+};
 
-    var img = Resources.get(this.sprite);
-    this.height = img.height;
-    this.width = img.width;
+Actor.prototype.render = function() {
+    ctx.drawImage(this.sprite, this.x, this.y);
+}
 
+Actor.prototype.update = function(dt) {
+    // Do nothing by default
+};
+
+// Enemies our player must avoid
+var Enemy = function() {
+    Actor.call(this, 'images/enemy-bug.png');
+    this.speed = 0;
+
+    // Set the position and speed of the Enemy for the start of a run
+    // Each enemy starts off the screen some random amount so that
+    // the all the enemies appear on the screen at different times
     this.reset = function() {
-        this.x = randomInteger(0, 500);
-        this.y = 50 + 100 * randomInteger(0, 3);
-        this.speed = randomInteger(20, 80);
+        this.x = randomInteger(-1600, -100);
+        this.y = 60 + 83 * randomInteger(0, 3);
+        this.speed = randomInteger(150, 300);
     };
     this.reset();
 };
+
+Enemy.prototype = Object.create( Actor.prototype, {
+        constructor: {
+            configurable: true, enumerable: true, value: Enemy, writeable: true
+        }
+    }
+)
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -32,52 +52,43 @@ Enemy.prototype.update = function(dt) {
     // Move
     this.x += dt * this.speed;
 
-    if (this.x > 400) {
+    // Once we've moved off the screen some we reset
+    if (this.x > 500) {
         this.reset();
     }
 };
 
-Enemy.prototype.resetPosition = function() {
-}
-
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
 // Our player
 var Player = function() {
-    this.sprite = 'images/char-boy.png';
+    Actor.call(this, 'images/char-boy.png');
     this.x = 200;
     this.y = 350;
     this.direction = 'none';
 };
 
-Player.prototype.update = function(dt) {
-};
-
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
+Player.prototype = Object.create( Actor.prototype, {
+        constructor: {
+            configurable: true, enumerable: true, value: Player, writeable: true
+        }
+    }
+)
 
 Player.prototype.handleInput = function(key) {
     this.direction = key;
 
     switch(this.direction) {
         case 'left':
-            this.x -= 50;
+            this.x -= 100;
             break;
         case 'right':
-            this.x += 50;
+            this.x += 100;
             break;
         case 'up':
-            this.y -= 50;
+            this.y -= 83;
             break;
         case 'down':
-            this.y += 50;
+            this.y += 83;
             break;
-        default:
-            console.log("unknown key: " + key);
     }
 
     console.log("Player (" + this.x + ", " + this.y + ")")
