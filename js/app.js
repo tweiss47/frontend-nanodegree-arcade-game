@@ -6,8 +6,8 @@ var Enemy = function(x, y) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.x = x;
-    this.y = y;
+    this.x = 0;
+    this.y = 150;
     this.speed = 10;
 };
 
@@ -28,8 +28,9 @@ Enemy.prototype.render = function() {
 // Our player
 var Player = function() {
     this.sprite = 'images/char-boy.png';
-    this.x = 100;
-    this.y = 100;
+    this.x = 200;
+    this.y = 350;
+    this.direction = 'none';
 };
 
 Player.prototype.update = function(dt) {
@@ -39,7 +40,30 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-Player.prototype.handleInput = function() {
+Player.prototype.handleInput = function(key) {
+    this.direction = key;
+
+    switch(this.direction) {
+        case 'left':
+            this.x -= 50;
+            break;
+        case 'right':
+            this.x += 50;
+            break;
+        case 'up':
+            this.y -= 50;
+            break;
+        case 'down':
+            this.y += 50;
+            break;
+        default:
+            console.log("unknown key: " + key);
+    }
+
+    console.log("Player (" + this.x + ", " + this.y + ")")
+
+    // Bounds: x [0 .. 400] y [0 .. 400]
+    // When y == 0 then the player is in the water and should reset
 };
 
 
