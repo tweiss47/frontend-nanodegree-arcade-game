@@ -161,7 +161,10 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        // Add the player and enemy creation dode here so that it happens
+        // late enough that images are loaded
+        player = new Player();
+        allEnemies.push(new Enemy());
     }
 
     /* Go ahead and load all of the images we know we're going to need to
