@@ -64,7 +64,7 @@ Enemy.prototype.update = function(dt) {
         if (this.x + 60 > player.x && // front of enemy overlaps the left
             this.x < player.x + 80 // back of enemy overlaps the right
         ) {
-            player.reset();
+            player.loseLife();
         }
     }
 
@@ -78,6 +78,7 @@ Enemy.prototype.update = function(dt) {
 var Player = function() {
     Actor.call(this, 'images/char-boy.png');
     this.yOffset = -10;
+    this.lives = 3;
     this.reset = function() {
         this.x = 200;
         this.y = 5 * 83 + this.yOffset;
@@ -94,9 +95,16 @@ Player.prototype = Object.create( Actor.prototype, {
 )
 
 // Move the player in response to key presses
-Player.prototype.handleInput = function(key) {
+Player.prototype.handleEvent = function(evt) {
+    var allowedKeys = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down'
+    };
+
     // For each direction test to see if the we are already on the border
-    switch(key) {
+    switch(allowedKeys[evt.keyCode]) {
         case 'left':
             if (this.x > 0) {
                 this.x -= 100;
@@ -122,26 +130,21 @@ Player.prototype.handleInput = function(key) {
     // Reached the water
     if (this.y < 0) {
         this.reset();
+        Engine.reset();
     }
 };
+
+Player.prototype.loseLife = function() {
+    this.lives--;
+    this.reset();
+    if (this.lives <= 0) {
+        Engine.end();
+    }
+}
 
 
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
 
 // Place the player object in a variable called player
-var player;
-
-
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
-
-    player.handleInput(allowedKeys[e.keyCode]);
-});
+var player = null;

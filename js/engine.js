@@ -22,7 +22,16 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime,
+        enemyCount = 8,
+        gameOver = false;
+
+    // Game state function to export for app.js
+    var exp = {
+        init: init,
+        reset: reset,
+        end: end
+    };
 
     canvas.width = 505;
     canvas.height = 606;
@@ -55,7 +64,11 @@ var Engine = (function(global) {
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
-        win.requestAnimationFrame(main);
+        if (!gameOver) {
+            win.requestAnimationFrame(main);
+        } else {
+            cleanup();
+        }
     }
 
     /* This function does some initial setup that should only occur once,
@@ -63,6 +76,11 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
+
+        // Create a player for the game
+        player = new Player();
+        doc.addEventListener('keyup', player);
+
         reset();
         lastTime = Date.now();
         main();
@@ -79,7 +97,6 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
@@ -103,6 +120,12 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
+        renderBoard();
+        renderEntities();
+    }
+
+    // Draw the game board background
+    function renderBoard() {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
@@ -137,8 +160,6 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
-        renderEntities();
     }
 
     /* This function is called by the render function and is called on each game
@@ -156,19 +177,50 @@ var Engine = (function(global) {
         player.render();
     }
 
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
+    // Display game over message on the board
+    function renderGameOver() {
+        // Set up the font and alignment
+        ctx.font = '72px Impact';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Need to draw white fill and black outline
+        ctx.lineWidth = 2;
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+
+        // Draw
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+        ctx.strokeText('GAME OVER', canvas.width / 2, canvas.height / 2);
+    }
+
+    /* This function sets a new round for the game. Called at the start
+     * of the game (from init) and whenever the player reaches the far side
+     * of the road.
      */
     function reset() {
-        // Add the player and enemy creation code here so that it happens
-        // late enough that images are already loaded
-        player = new Player();
-
-        allEnemies.length = 0;
-        for (var i = 0; i < 8; i++) {
+        // Create new enemies
+        for (var i = allEnemies.length; i < enemyCount; i++) {
             allEnemies.push(new Enemy());
         }
+        enemyCount++;
+    }
+
+    // Signal the end of the game. The gameOver flag will cause main to
+    // stop requesting new animation frames and call cleanup.
+    function end() {
+        gameOver = true;
+    }
+
+    // Called from main after the end of the game is signalled
+    function cleanup() {
+        // Draw the final board
+        renderBoard();
+        renderGameOver();
+
+        // Disconnect the keyboard and cleanup the player
+        doc.removeEventListener('keyup', player);
+        player = null;
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -189,4 +241,7 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
-})(this);
+
+    // Export game state functions
+    return exp;
+}(this));
