@@ -61,9 +61,12 @@ Enemy.prototype.update = function(dt) {
 // Our player
 var Player = function() {
     Actor.call(this, 'images/char-boy.png');
-    this.x = 200;
-    this.y = 350;
-    this.direction = 'none';
+    this.reset = function() {
+        this.x = 200;
+        this.y = 5 * 83 - 10;
+    }
+    this.reset();
+    console.log(this.x, this.y);
 };
 
 Player.prototype = Object.create( Actor.prototype, {
@@ -74,27 +77,34 @@ Player.prototype = Object.create( Actor.prototype, {
 )
 
 Player.prototype.handleInput = function(key) {
-    this.direction = key;
-
-    switch(this.direction) {
+    switch(key) {
         case 'left':
-            this.x -= 100;
+            if (this.x > 0) {
+                this.x -= 100;
+            }
             break;
         case 'right':
-            this.x += 100;
+            if (this.x < 400) {
+                this.x += 100;
+            }
             break;
         case 'up':
-            this.y -= 83;
+            if (this.y > 70) {
+                this.y -= 83;
+            }
             break;
         case 'down':
-            this.y += 83;
+            if (this.y < 400) {
+                this.y += 83;
+            }
             break;
     }
 
     console.log("Player (" + this.x + ", " + this.y + ")")
-
-    // Bounds: x [0 .. 400] y [0 .. 400]
-    // When y == 0 then the player is in the water and should reset
+    // Reached the water
+    if (this.y < 0) {
+        this.reset();
+    }
 };
 
 
