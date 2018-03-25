@@ -33,7 +33,7 @@ var Enemy = function() {
     // the all the enemies appear on the screen at different times
     this.reset = function() {
         this.x = randomInteger(-1600, -100);
-        this.y = 60 + 83 * randomInteger(0, 3);
+        this.y = 83 * randomInteger(1, 4) - 20;
         this.speed = randomInteger(150, 300);
     };
     this.reset();
