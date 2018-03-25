@@ -10,9 +10,9 @@ var randomInteger = function(min, max) {
 
 // Actor type handles functionality common to the Enemy and Player
 // types. Including position and sprite rendering.
-var Actor = function(sprite) {
+var Actor = function(sprite, yOffset) {
     this.sprite = Resources.get(sprite);
-    this.yOffset = 0;
+    this.yOffset = yOffset; // adjustment for the size of the sprite image
     this.x = 0;
     this.y = 0;
 };
@@ -35,9 +35,8 @@ Actor.prototype.getRow = function() {
 // The Enemy type is runs along the road. If the player contacts an
 // enemy it loses a life.
 var Enemy = function() {
-    Actor.call(this, 'images/enemy-bug.png');
+    Actor.call(this, 'images/enemy-bug.png', -20);
     this.speed = 0;
-    this.yOffset = -20;
 
     // Set the position and speed of the Enemy for the start of a run
     // Each enemy starts off the screen some random amount so that
@@ -81,8 +80,7 @@ Enemy.prototype.update = function(dt) {
 
 // The Player
 var Player = function() {
-    Actor.call(this, 'images/char-boy.png');
-    this.yOffset = -10;
+    Actor.call(this, 'images/char-boy.png', -10);
     this.lives = 3;
     this.reset = function() {
         this.x = 200; // middle of the board
