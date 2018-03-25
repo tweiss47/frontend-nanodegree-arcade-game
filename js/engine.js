@@ -26,11 +26,12 @@ var Engine = (function(global) {
         enemyCount = 8,
         gameOver = false;
 
-    // Game state function to export for app.js
+    // Game state functions to export for app.js so the applciation
+    // code can control game execution
     var exp = {
-        init: init,
-        reset: reset,
-        end: end
+        init: init,         // start a new game
+        reset: reset,       // signal the end of a level
+        end: end            // end the game
     };
 
     canvas.width = 505;
@@ -76,12 +77,14 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-
         // Create a player for the game
         player = new Player();
         doc.addEventListener('keyup', player);
 
+        // Create the enemies for the game do level reset
         reset();
+
+        // Run the main loop
         lastTime = Date.now();
         main();
     }

@@ -1,3 +1,6 @@
+// Frogger application code. Define the Enemy and Player object types
+// needed to play the game.
+
 // Return a random integer in the range [min .. max)
 var randomInteger = function(min, max) {
     min = Math.ceil(min);
@@ -5,8 +8,8 @@ var randomInteger = function(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-// Create an Actor object to hold common data and methods for both
-// Enemies and Players
+// Actor type handles functionality common to the Enemy and Player
+// types. Including position and sprite rendering.
 var Actor = function(sprite) {
     this.sprite = Resources.get(sprite);
     this.yOffset = 0;
@@ -19,16 +22,18 @@ Actor.prototype.render = function() {
     ctx.drawImage(this.sprite, this.x, this.y);
 }
 
+// Update is called by the engine on each game loop pass
 Actor.prototype.update = function(dt) {
     // Do nothing by default
 };
 
-// What row is the Actor in 0 is the top of the road
+// What row is the Actor in? 0 is the top of the road.
 Actor.prototype.getRow = function() {
     return Math.floor((this.y + this.yOffset) / 83);
 }
 
-// Enemies our player must avoid
+// The Enemy type is runs along the road. If the player contacts an
+// enemy it loses a life.
 var Enemy = function() {
     Actor.call(this, 'images/enemy-bug.png');
     this.speed = 0;
@@ -53,7 +58,7 @@ Enemy.prototype = Object.create( Actor.prototype, {
     }
 )
 
-// Update the enemy's position, required method for game
+// Update the Enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
     // Move
@@ -68,20 +73,20 @@ Enemy.prototype.update = function(dt) {
         }
     }
 
-    // Once we've moved off the screen some we reset
+    // Once we've moved off the screen we reset
     if (this.x > 500) {
         this.reset();
     }
 };
 
-// Object type for our player
+// The Player
 var Player = function() {
     Actor.call(this, 'images/char-boy.png');
     this.yOffset = -10;
     this.lives = 3;
     this.reset = function() {
-        this.x = 200;
-        this.y = 5 * 83 + this.yOffset;
+        this.x = 200; // middle of the board
+        this.y = 5 * 83 + this.yOffset; // bottom row
     }
     this.reset();
 };
@@ -127,13 +132,15 @@ Player.prototype.handleEvent = function(evt) {
             break;
     }
 
-    // Reached the water
+    // Reached the water so reset to start position and notify the game engine
     if (this.y < 0) {
         this.reset();
         Engine.reset();
     }
 };
 
+// Decrement the number of lives the player has when contacted by an enemy.
+// End the game when lives gets to 0
 Player.prototype.loseLife = function() {
     this.lives--;
     this.reset();
@@ -141,7 +148,6 @@ Player.prototype.loseLife = function() {
         Engine.end();
     }
 }
-
 
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
